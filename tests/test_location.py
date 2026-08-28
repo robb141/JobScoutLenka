@@ -1,4 +1,4 @@
-from jobscout.location import normalize_text, region_match
+from jobscout.location import normalize_text, region_match, tidy_location
 
 
 def test_normalize_text_collapses_whitespace_and_lowercases():
@@ -11,16 +11,24 @@ def test_vienna_bare_city_has_no_district():
 
 
 def test_vienna_district_from_postal_code():
-    assert region_match("1200 Wien, Brigittenau") == "Wien 20"
-    assert region_match("1010") == "Wien 1"
-    assert region_match("1030 Wien") == "Wien 3"
-    assert region_match("1230 Wien, Liesing") == "Wien 23"
+    assert region_match("1200 Wien, Brigittenau") == "Vienna 20"
+    assert region_match("1010") == "Vienna 1"
+    assert region_match("1030 Wien") == "Vienna 3"
+    assert region_match("1230 Wien, Liesing") == "Vienna 23"
 
 
 def test_vienna_district_from_name():
-    assert region_match("Favoriten") == "Wien 10"
-    assert region_match("Wien, Landstraße") == "Wien 3"
-    assert region_match("Rudolfsheim-Fünfhaus") == "Wien 15"
+    assert region_match("Favoriten") == "Vienna 10"
+    assert region_match("Wien, Landstraße") == "Vienna 3"
+    assert region_match("Rudolfsheim-Fünfhaus") == "Vienna 15"
+
+
+def test_tidy_location_collapses_repeated_neighbours():
+    assert tidy_location("Vienna, Vienna, Austria") == "Vienna, Austria"
+    assert tidy_location("Bratislava, Bratislava, Slovakia") == "Bratislava, Slovakia"
+    assert tidy_location("Wien") == "Wien"
+    assert tidy_location("Prague 9, Prague, Czechia") == "Prague 9, Prague, Czechia"
+    assert tidy_location("") == ""
 
 
 def test_bratislava_borough_not_mistaken_for_vienna_district():

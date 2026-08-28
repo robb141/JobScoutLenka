@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup, Tag
 
 from jobscout.config import AppConfig
 from jobscout.language import german_requirement
-from jobscout.location import region_match
+from jobscout.location import region_match, tidy_location
 from jobscout.models import JobPosting
 from jobscout.roles import match_role
 from jobscout.sources.base import JobSource
@@ -82,9 +82,11 @@ class KarriereAtSource(JobSource):
             return None
 
         location_nodes = item.select("a.m-jobsListItem__location")
-        location = ", ".join(
-            dict.fromkeys(
-                self._text(node).rstrip(" ,") for node in location_nodes if self._text(node).rstrip(" ,")
+        location = tidy_location(
+            ", ".join(
+                dict.fromkeys(
+                    self._text(node).rstrip(" ,") for node in location_nodes if self._text(node).rstrip(" ,")
+                )
             )
         )
         match = region_match(location, config.include_unspecified)

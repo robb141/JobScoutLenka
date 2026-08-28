@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from jobscout.config import AppConfig
-from jobscout.location import region_match
+from jobscout.location import region_match, tidy_location
 from jobscout.models import JobPosting
 from jobscout.roles import match_role, role_terms
 from jobscout.sources.base import JobSource
@@ -87,7 +87,7 @@ class LinkedInSource(JobSource):
         link = card.select_one("a.base-card__full-link, a[href*='/jobs/view/']")
         title = self._text(card.select_one(".base-search-card__title"))
         company = self._text(card.select_one(".base-search-card__subtitle"))
-        location = self._text(card.select_one(".job-search-card__location"))
+        location = tidy_location(self._text(card.select_one(".job-search-card__location")))
         if not link or not title:
             return None
 

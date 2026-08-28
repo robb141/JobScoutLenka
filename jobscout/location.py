@@ -150,7 +150,24 @@ def _vienna_district(normalized: str) -> int | None:
 
 def _vienna_label(normalized: str) -> str:
     number = _vienna_district(normalized)
-    return f"Wien {number}" if number else VIENNA
+    return f"{VIENNA} {number}" if number else VIENNA
+
+
+def tidy_location(value: str) -> str:
+    """Collapse a comma-separated location, dropping repeated neighbours.
+
+    Boards often stack "city, state, country" and the city equals the state
+    ("Vienna, Vienna, Austria" -> "Vienna, Austria").
+    """
+    parts: list[str] = []
+    for chunk in (value or "").split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if parts and parts[-1].casefold() == chunk.casefold():
+            continue
+        parts.append(chunk)
+    return ", ".join(parts)
 
 
 def region_match(text: str, include_unspecified: bool = True) -> str | None:

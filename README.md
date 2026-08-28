@@ -9,13 +9,16 @@ Every posting is sorted into one of these regions, and anything that lands
 outside them is dropped:
 
 - **Bratislava** – the city and its boroughs
-- **Vienna** – shown as `Wien 3`, `Wien 22`, … when the district can be read
-  from a postal code or district name, otherwise just `Vienna`
+- **Vienna** – shown as `Vienna 3`, `Vienna 22`, … when the district can be
+  read from a postal code or district name, otherwise just `Vienna`
 - **Kittsee area** – Austrian border towns within roughly 25 km of Kittsee
   (Hainburg, Bruck an der Leitha, Parndorf, Neusiedl am See, …)
 
 The report columns:
 
+- **Region** – always English (`Bratislava`, `Vienna`, `Vienna 22`,
+  `Kittsee area`). The **Location** column keeps whatever the board printed,
+  so it may read `Wien` (karriere.at) or `Vienna, Austria` (LinkedIn).
 - **Zverejnené** – when it was posted, normalised to Slovak (`Dnes`, `Včera`,
   `pred 3 dňami`, `pred 2 týždňami`, or a `d. m. yyyy` date)
 - **Description** – for karriere.at rows, prefixed with the German level the

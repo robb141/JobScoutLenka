@@ -95,7 +95,7 @@ class CompanyPagesSource(JobSource):
             # Use the employer's known district to sharpen a bare "Vienna".
             if match == VIENNA and default_location:
                 refined = region_match(default_location, config.include_unspecified)
-                if refined and refined.startswith("Wien "):
+                if refined and refined.startswith(f"{VIENNA} "):
                     match = refined
 
             description = " - ".join(part for part in [note, self._shorten(nearby)] if part)[:300]

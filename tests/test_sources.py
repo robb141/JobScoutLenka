@@ -161,6 +161,7 @@ def test_linkedin_card_parses():
     assert job.source_id == "4123456789"
     assert job.company == "Acme GmbH"
     assert job.region_match == "Vienna"
+    assert job.location == "Vienna, Austria"  # "Vienna, Vienna, Austria" de-duped
     assert job.posted_date == "2026-08-20"
     assert "?" not in job.url
 
@@ -195,11 +196,11 @@ def test_company_pages_matches_role_and_region():
 def test_company_pages_note_prefixes_description_and_district_refines_vienna():
     html = '<div><a href="/careers/biochemist">Biochemist</a> – Wien, Austria</div>'
     jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "Wien 22 (Donaustadt)", "Nemčina: B2+", make_config()
+        html, "https://example.com", "Example", "Vienna 22 (Donaustadt)", "Nemčina: B2+", make_config()
     )
     assert len(jobs) == 1
     # listing says only "Wien"; the configured district sharpens it
-    assert jobs[0].region_match == "Wien 22"
+    assert jobs[0].region_match == "Vienna 22"
     assert jobs[0].summary.startswith("Nemčina: B2+")
 
 
@@ -208,7 +209,7 @@ def test_company_pages_ignores_job_links_for_other_countries():
     # location must not pull it into Vienna.
     html = '<li><a href="https://ex.workable.com/jobs/12345">Analytical chemist – Solna, Sweden</a></li>'
     jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "Wien 3 (Landstraße)", "", make_config()
+        html, "https://example.com", "Example", "Vienna 3 (Landstraße)", "", make_config()
     )
     assert jobs == []
 

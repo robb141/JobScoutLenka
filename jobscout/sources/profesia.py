@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from jobscout.config import AppConfig
-from jobscout.location import region_match
+from jobscout.location import region_match, tidy_location
 from jobscout.models import JobPosting
 from jobscout.roles import match_role
 from jobscout.sources.base import JobSource
@@ -76,7 +76,7 @@ class ProfesiaSource(JobSource):
             return None
 
         location_node = row.select_one(".job-location")
-        location = self._text(location_node)
+        location = tidy_location(self._text(location_node))
         location_hint = f"{location} {self._attr(location_node, 'title')}"
         match = region_match(location_hint, config.include_unspecified)
         if not match:
