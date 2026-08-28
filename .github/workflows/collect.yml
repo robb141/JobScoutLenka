@@ -24,9 +24,6 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,11 +45,29 @@ jobs:
       - name: Collect jobs
         run: python -m jobscout collect
 
+      # Always available: download output/index.html from the run's summary.
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: output/index.html
+          retention-days: 90
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: output
 
+  # Bonus: render the report at a URL. Needs GitHub Pages, which requires a
+  # public repo (or a paid plan) - the step is allowed to fail otherwise.
+  publish:
+    needs: collect
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
