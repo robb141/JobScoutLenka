@@ -1,0 +1,109 @@
+# Global role keywords, in English. LinkedIn searches these directly, and
+# every source uses the full multilingual set (this list plus each source's
+# own `keywords:` below) to decide whether a scraped posting really is a
+# match. Seniority words ("junior", "senior", ...) are stripped automatically.
+roles:
+  - Biochemist
+  - Biochemistry
+  - Molecular biology
+  - Analytical chemist
+  - Analytical chemistry
+  - Laboratory technician
+  - Lab analyst
+  - Quality control
+  - QC analyst
+  - R&D scientist
+  - Microbiologist
+  - Bioinformatics
+  - Formulation scientist
+  - Clinical research associate
+  - Pharmaceutical
+
+# Keep true so postings that only say "Bratislavský kraj" or "Wien-Umgebung"
+# (no specific town) still show up, tagged as a region rather than a city.
+include_unspecified: true
+
+max_pages_per_query: 3
+request_delay_seconds: 1.0
+
+sources:
+  profesia:
+    enabled: true
+    # Slovak region slug pinned in the URL path. "bratislavsky-kraj" is
+    # Bratislava plus its commuter belt. Use "" to search all of Slovakia.
+    region: bratislavsky-kraj
+    # Slovak search terms - Profesia is a Slovak-language board.
+    keywords:
+      - Biochemik
+      - Biochémia
+      - Laborant
+      - Laboratórny technik
+      - Kontrola kvality
+      - Kontrolór kvality
+      - Analytická chémia
+      - Chemik
+      - Mikrobiológ
+      - Výskumný pracovník
+      - Farmaceutická výroba
+      - Vývoj liečiv
+  karriere_at:
+    enabled: true
+    # Austrian states searched, then filtered down to Vienna + towns within
+    # commuting distance of Kittsee.
+    locations:
+      - Wien
+      - Niederösterreich
+      - Burgenland
+    # German search terms - karriere.at is a German-language board.
+    keywords:
+      - Biochemie
+      - Biochemiker
+      - Chemiker
+      - Labortechniker
+      - Laborant
+      - Qualitätskontrolle
+      - Qualitätssicherung
+      - Molekularbiologie
+      - Mikrobiologie
+      - Pharmazie
+      - Analytik Labor
+      - Forschung Entwicklung
+  linkedin:
+    # Public guest search; rate-limited by LinkedIn, failed queries are skipped.
+    # No `keywords:` here, so it uses the English `roles` list above.
+    enabled: true
+    locations:
+      - "Bratislava, Slovakia"
+      - "Vienna, Austria"
+      - "Kittsee, Austria"
+  company_pages:
+    enabled: true
+    # Direct career pages of biotech / pharma / research employers. The
+    # collector scans every link on the page for the role keywords above and
+    # keeps the ones that also resolve to one of Lenka's regions.
+    #   location: Vienna district if known (shown in the report, and used as
+    #             the region fallback when a listing names no place)
+    #   note:     free text prepended to the Description column - used here for
+    #             the German-language level the employer typically expects
+    # The Slovak market (Medirex, Unilabs, Alpha medical, SAV, universities)
+    # is already covered by the Profesia source, so this list is Austria-side.
+    # These are big global portals: results appear only when a matching
+    # biochem role is actually open, and JS-only listing pages may yield
+    # nothing - paste a narrower/static listing URL if you find one.
+    pages:
+      - company: University of Vienna
+        url: https://jobs.univie.ac.at/go/Alle-Jobangebote/8879601/
+        location: Wien 9 (Alsergrund) / Wien 3 (Vienna BioCenter)
+        note: "Nemčina: C1 pre pedagogické/administratívne pozície; veľa výskumných pozícií je v angličtine"
+      - company: Takeda
+        url: https://www.takedajobs.com/en/search-jobs/Vienna%2C%20Austria/
+        location: Wien 22 (Donaustadt)
+        note: "Nemčina: B2+ pre výrobu a kontrolu kvality; časť R&D pozícií v angličtine"
+      - company: Boehringer Ingelheim RCV
+        url: https://jobs.boehringer-ingelheim.com/search-jobs/Vienna%2C%20Austria/
+        location: Wien 12 (Meidling)
+        note: "Nemčina: B2–C1 pre väčšinu pozícií; globálne R&D pozície občas v angličtine"
+      - company: Valneva Austria
+        url: https://valneva.com/careers/
+        location: Wien 3 (Landstraße, Campus Vienna Biocenter)
+        note: "Pracovný jazyk angličtina; nemčina zvyčajne nie je podmienkou"
