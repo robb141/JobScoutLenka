@@ -45,10 +45,13 @@ Edit `config.yml`:
 - `sources.profesia.region` – Slovak region slug pinned in the URL
 - `sources.karriere_at.locations` / `sources.linkedin.locations` – Austrian
   states / LinkedIn geos to search before region filtering
-- `sources.company_pages.pages` – direct career pages of biotech/pharma
-  employers to scan; each entry takes `location` (Vienna district if known)
-  and `note` (e.g. the German level the employer expects), both surfaced in
-  the report
+- `sources.company_pages.pages` – direct career / listing pages to scan.
+  Per entry: `location` (Vienna district if known), `note` (e.g. the German
+  level expected) – both shown in the report – plus optional `link_pattern`
+  (regex an href must match, for quirky URL schemes) and `single_site: true`
+  (let `location` admit rows that name no place – only for one-location
+  employers). Currently: Slovak Academy of Sciences, Lexogen, University of
+  Vienna, Takeda, Boehringer Ingelheim, Valneva.
 
 Each board is searched in its own language, but a scraped posting is kept
 only if its **title** matches one of the keywords in *any* language (with a
@@ -84,7 +87,11 @@ Then visit http://127.0.0.1:8000.
 - **karriere.at** – the largest Austrian board (Vienna + border towns)
 - **LinkedIn** – public guest search; rate-limited, so some queries may be
   skipped on busy runs
-- **Company pages** – direct career pages listed in `config.yml`
+- **Company pages** – direct career / listing pages listed in `config.yml`
+  (Slovak Academy of Sciences job board, Lexogen, University of Vienna,
+  Takeda, Boehringer Ingelheim, Valneva)
 
-Not wired up yet, but sensible next additions: AMS *alle jobs* (jobs.ams.at)
-and Indeed (`at.indeed.com`, `sk.indeed.com`).
+Not wired up yet, but sensible next additions for more volume: a general
+board such as **Indeed** (`at.indeed.com`, `sk.indeed.com`) or
+**StepStone.at**, and AMS *alle jobs* (jobs.ams.at). Most other employer
+career sites are JavaScript apps that this scraper cannot read.

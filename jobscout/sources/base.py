@@ -47,6 +47,10 @@ class JobSource(ABC):
             try:
                 response = self.session.get(url, timeout=timeout)
                 response.raise_for_status()
+                # requests falls back to ISO-8859-1 for text/* without an
+                # explicit charset, which mangles UTF-8 pages (e.g. sav.sk).
+                if "charset" not in response.headers.get("content-type", "").lower():
+                    response.encoding = response.apparent_encoding or response.encoding
                 return response
             except requests.HTTPError as exc:
                 status = exc.response.status_code if exc.response is not None else None

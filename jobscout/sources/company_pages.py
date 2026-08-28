@@ -26,12 +26,16 @@ _JOB_HREF_RE = re.compile(
 
 
 class CompanyPagesSource(JobSource):
-    """Direct career pages of biotech / pharma employers around the region.
+    """Direct career pages of biotech / pharma / research employers.
 
-    Configure entries under ``sources.company_pages.pages``; the collector
-    scans every link on the page for the role keywords and keeps the ones
-    that also resolve to one of Lenka's target regions. A ``location`` given
-    per page is used as the fallback when the link itself names no place.
+    Configure entries under ``sources.company_pages.pages``. Per entry:
+      url           career/listing page to scan
+      location      shown in the report; refines a bare "Vienna" to a district
+      note          text prepended to the Description column
+      link_pattern  regex a link's href must match to count as a job (defaults
+                    to a generic job-URL pattern); use for quirky URL schemes
+      single_site   when true, ``location`` also *admits* jobs whose row names
+                    no place - only set for genuinely one-location employers
     """
 
     name = "company_pages"
@@ -45,6 +49,11 @@ class CompanyPagesSource(JobSource):
             url = str(page.get("url", "")).strip()
             default_location = str(page.get("location", "")).strip()
             note = str(page.get("note", "")).strip()
+            single_site = bool(page.get("single_site", False))
+            try:
+                link_re = re.compile(str(page["link_pattern"]), re.IGNORECASE) if page.get("link_pattern") else None
+            except re.error:
+                link_re = None
             if not company or not url:
                 continue
 
@@ -53,7 +62,9 @@ class CompanyPagesSource(JobSource):
             except Exception:  # noqa: BLE001 - one broken page must not sink the rest
                 continue
 
-            for job in self._parse_page(response.text, url, company, default_location, note, config):
+            for job in self._parse_page(
+                response.text, url, company, default_location, note, link_re, single_site, config
+            ):
                 jobs.setdefault(job.stable_id, job)
 
             time.sleep(config.request_delay_seconds)
@@ -67,15 +78,21 @@ class CompanyPagesSource(JobSource):
         company: str,
         default_location: str,
         note: str,
+        link_re: "re.Pattern[str] | None",
+        single_site: bool,
         config: AppConfig,
     ) -> list[JobPosting]:
         soup = BeautifulSoup(html, "html.parser")
+        job_link_re = link_re or _JOB_HREF_RE
+        default_region = (
+            region_match(default_location, config.include_unspecified) if default_location else None
+        )
         jobs = []
 
         for link in soup.select("a[href]"):
             text = self._text(link)
             href = str(link.get("href") or "")
-            if len(text) < 6 or not _JOB_HREF_RE.search(href):
+            if len(text) < 6 or not job_link_re.search(href):
                 continue
 
             nearby = self._nearby_text(link)
@@ -86,17 +103,18 @@ class CompanyPagesSource(JobSource):
             # The listing itself must place the job in a target region - a
             # global career site lists jobs for every country, and the
             # configured `location` is not license to claim all of them.
-            match = region_match(f"{text} {href}", config.include_unspecified) or region_match(
-                nearby, config.include_unspecified
+            # `single_site` employers are the exception.
+            match = (
+                region_match(f"{text} {href}", config.include_unspecified)
+                or region_match(nearby, config.include_unspecified)
+                or (default_region if single_site else None)
             )
             if not match:
                 continue
 
             # Use the employer's known district to sharpen a bare "Vienna".
-            if match == VIENNA and default_location:
-                refined = region_match(default_location, config.include_unspecified)
-                if refined and refined.startswith(f"{VIENNA} "):
-                    match = refined
+            if match == VIENNA and default_region and default_region.startswith(f"{VIENNA} "):
+                match = default_region
 
             description = " - ".join(part for part in [note, self._shorten(nearby)] if part)[:300]
             jobs.append(

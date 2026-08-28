@@ -178,6 +178,15 @@ def test_linkedin_drops_out_of_scope_locations():
 
 # --- Company pages -----------------------------------------------------------
 
+def parse_company(html, *, location="", note="", link_pattern=None, single_site=False, cfg=None):
+    import re as _re
+
+    link_re = _re.compile(link_pattern, _re.IGNORECASE) if link_pattern else None
+    return CompanyPagesSource()._parse_page(
+        html, "https://example.com", "Example", location, note, link_re, single_site, cfg or make_config()
+    )
+
+
 def test_company_pages_matches_role_and_region():
     html = """
       <ul>
@@ -185,9 +194,7 @@ def test_company_pages_matches_role_and_region():
         <li><a href="/careers/driver">LKW Fahrer</a> – Wien</li>
       </ul>
     """
-    jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "", "", make_config()
-    )
+    jobs = parse_company(html)
     assert len(jobs) == 1
     assert jobs[0].region_match == "Bratislava"
     assert jobs[0].matched_query == "Laborant"
@@ -195,9 +202,7 @@ def test_company_pages_matches_role_and_region():
 
 def test_company_pages_note_prefixes_description_and_district_refines_vienna():
     html = '<div><a href="/careers/biochemist">Biochemist</a> – Wien, Austria</div>'
-    jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "Vienna 22 (Donaustadt)", "Nemčina: B2+", make_config()
-    )
+    jobs = parse_company(html, location="Vienna 22 (Donaustadt)", note="Nemčina: B2+")
     assert len(jobs) == 1
     # listing says only "Wien"; the configured district sharpens it
     assert jobs[0].region_match == "Vienna 22"
@@ -208,15 +213,18 @@ def test_company_pages_ignores_job_links_for_other_countries():
     # A real job link, but the listing places it abroad - the configured
     # location must not pull it into Vienna.
     html = '<li><a href="https://ex.workable.com/jobs/12345">Analytical chemist – Solna, Sweden</a></li>'
-    jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "Vienna 3 (Landstraße)", "", make_config()
-    )
-    assert jobs == []
+    assert parse_company(html, location="Vienna 3 (Landstraße)") == []
+
+
+def test_company_pages_single_site_admits_placeless_rows():
+    html = '<li><a href="/detail?offer_no=42">Laborant vo výskumnom laboratóriu</a></li>'
+    # without single_site the row names no region -> dropped
+    assert parse_company(html, location="Bratislava", link_pattern="offer_no=") == []
+    # with it, the configured location admits the job
+    jobs = parse_company(html, location="Bratislava", link_pattern="offer_no=", single_site=True)
+    assert len(jobs) == 1 and jobs[0].region_match == "Bratislava"
 
 
 def test_company_pages_skips_non_job_links():
     html = '<footer><a href="https://glassdoor.com/x">Glassdoor Laboratory reviews</a></footer>'
-    jobs = CompanyPagesSource()._parse_page(
-        html, "https://example.com", "Example", "Wien", "", make_config()
-    )
-    assert jobs == []
+    assert parse_company(html, location="Wien") == []

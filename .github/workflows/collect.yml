@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   schedule:
     # 05:30 UTC on weekdays - fresh postings before Lenka's morning.
-    - cron: "30 5 * * 1-5"
+    - cron: "30 5 * * 5"
   push:
     branches: [main]
     paths:

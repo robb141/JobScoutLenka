@@ -5,25 +5,37 @@
 roles:
   - Biochemist
   - Biochemistry
+  - Biotechnology
   - Molecular biology
+  - Cell culture
   - Analytical chemist
   - Analytical chemistry
+  - Chemist
   - Laboratory technician
-  - Lab analyst
+  - Laboratory analyst
+  - Medical laboratory
+  - Bioanalytical
   - Quality control
   - QC analyst
+  - Quality assurance
+  - GMP
+  - Validation
   - R&D scientist
-  - Microbiologist
-  - Bioinformatics
+  - Drug development
   - Formulation scientist
+  - Microbiologist
+  - Immunology
+  - Bioinformatics
   - Clinical research associate
+  - Regulatory affairs
+  - Pharmacovigilance
   - Pharmaceutical
 
 # Keep true so postings that only say "Bratislavský kraj" or "Wien-Umgebung"
 # (no specific town) still show up, tagged as a region rather than a city.
 include_unspecified: true
 
-max_pages_per_query: 3
+max_pages_per_query: 2
 request_delay_seconds: 1.0
 
 sources:
@@ -36,16 +48,26 @@ sources:
     keywords:
       - Biochemik
       - Biochémia
+      - Biotechnológ
+      - Molekulárna biológia
       - Laborant
       - Laboratórny technik
+      - Laboratórny analytik
+      - Zdravotnícky laborant
+      - Chemik
+      - Chemický analytik
+      - Analytická chémia
       - Kontrola kvality
       - Kontrolór kvality
-      - Analytická chémia
-      - Chemik
+      - Kontrola kvality liečiv
       - Mikrobiológ
       - Výskumný pracovník
+      - Vývoj a výskum
+      - Farmaceutický laborant
       - Farmaceutická výroba
       - Vývoj liečiv
+      - Validácia
+      - Regulačné záležitosti
   karriere_at:
     enabled: true
     # Austrian states searched, then filtered down to Vienna + towns within
@@ -58,15 +80,27 @@ sources:
     keywords:
       - Biochemie
       - Biochemiker
+      - Biotechnologie
+      - Molekularbiologie
       - Chemiker
+      - Chemielaborant
+      - Biologielaborant
       - Labortechniker
       - Laborant
+      - Laborassistenz
+      - technische Assistenz
+      - Bioanalytik
+      - analytische Chemie
+      - Zellkultur
       - Qualitätskontrolle
       - Qualitätssicherung
-      - Molekularbiologie
+      - GMP
+      - Validierung
       - Mikrobiologie
       - Pharmazie
-      - Analytik Labor
+      - Pharmakovigilanz
+      - Regulatory Affairs
+      - Wirkstoff
       - Forschung Entwicklung
   linkedin:
     # Public guest search; rate-limited by LinkedIn, failed queries are skipped.
@@ -78,19 +112,28 @@ sources:
       - "Kittsee, Austria"
   company_pages:
     enabled: true
-    # Direct career pages of biotech / pharma / research employers. The
-    # collector scans every link on the page for the role keywords above and
-    # keeps the ones that also resolve to one of Lenka's regions.
-    #   location: Vienna district if known (shown in the report, and used as
-    #             the region fallback when a listing names no place)
-    #   note:     free text prepended to the Description column - used here for
-    #             the German-language level the employer typically expects
-    # The Slovak market (Medirex, Unilabs, Alpha medical, SAV, universities)
-    # is already covered by the Profesia source, so this list is Austria-side.
-    # These are big global portals: results appear only when a matching
-    # biochem role is actually open, and JS-only listing pages may yield
-    # nothing - paste a narrower/static listing URL if you find one.
+    # Direct career / listing pages. Per entry:
+    #   location      shown in the report; refines a bare "Vienna" to a district
+    #   note          text prepended to the Description column
+    #   link_pattern  regex an href must match to count as a job (for quirky
+    #                 URL schemes); a generic pattern is used otherwise
+    #   single_site   when true, `location` also *admits* rows that name no
+    #                 place - only for genuinely one-location employers
+    # The Slovak market is largely covered by Profesia; these fill gaps.
+    # Big global portals only surface a hit when a matching role is open, and
+    # JS-only listing pages may yield nothing.
     pages:
+      - company: Slovak Academy of Sciences
+        url: "https://www.sav.sk/?lang=sk&doc=board-job"
+        location: Bratislava
+        link_pattern: "jobs_offer_no="
+        single_site: true
+        note: "Relevantné ústavy (Chemický ústav, Ústav molekulárnej biológie, Biomedicínske centrum, Virologický ústav) sú v Bratislave - iné lokality si over v názve ústavu"
+      - company: Lexogen
+        url: "https://lexogen.jobs.personio.de/"
+        location: Vienna 3 (Vienna BioCenter)
+        single_site: true
+        note: "NGS / molekulárna biológia; pracovný jazyk angličtina"
       - company: University of Vienna
         url: https://jobs.univie.ac.at/go/Alle-Jobangebote/8879601/
         location: Vienna 9 (Alsergrund) / Vienna 3 (Vienna BioCenter)
