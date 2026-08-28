@@ -76,8 +76,9 @@ sources:
       - Wien
       - Niederösterreich
       - Burgenland
-    # German search terms - karriere.at is a German-language board.
-    keywords:
+    # German search terms - karriere.at is a German-language board. Shared
+    # with stepstone below via the &de_keywords anchor.
+    keywords: &de_keywords
       - Biochemie
       - Biochemiker
       - Biotechnologie
@@ -102,6 +103,14 @@ sources:
       - Regulatory Affairs
       - Wirkstoff
       - Forschung Entwicklung
+  stepstone:
+    enabled: true
+    # A second Austrian board (StepStone.at). Searched with a 30 km radius
+    # around each point, then filtered to Vienna + the Kittsee border.
+    locations:
+      - Wien
+      - Hainburg an der Donau
+    keywords: *de_keywords
   linkedin:
     # Public guest search; rate-limited by LinkedIn, failed queries are skipped.
     # No `keywords:` here, so it uses the English `roles` list above.

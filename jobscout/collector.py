@@ -14,6 +14,7 @@ from .sources import (
     KarriereAtSource,
     LinkedInSource,
     ProfesiaSource,
+    StepStoneAtSource,
 )
 from .sources.base import JobSource
 from .state import load_state, save_state
@@ -26,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_CLASSES: dict[str, type[JobSource]] = {
     "profesia": ProfesiaSource,
     "karriere_at": KarriereAtSource,
+    "stepstone": StepStoneAtSource,
     "linkedin": LinkedInSource,
     "company_pages": CompanyPagesSource,
 }

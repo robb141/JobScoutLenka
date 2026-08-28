@@ -5,11 +5,12 @@ from jobscout.sources.company_pages import CompanyPagesSource
 from jobscout.sources.karriere_at import KarriereAtSource
 from jobscout.sources.linkedin import LinkedInSource
 from jobscout.sources.profesia import ProfesiaSource
+from jobscout.sources.stepstone import StepStoneAtSource
 
 
 def make_config(**overrides) -> AppConfig:
     defaults = dict(
-        roles=["Laborant", "Biochemist", "Analytical chemist", "Qualitätskontrolle"],
+        roles=["Laborant", "Labortechniker", "Biochemist", "Analytical chemist", "Qualitätskontrolle"],
         include_unspecified=True,
         max_pages_per_query=1,
         request_delay_seconds=0.0,
@@ -133,6 +134,60 @@ def test_karriere_drops_far_austrian_towns():
 def test_karriere_keeps_kittsee_border_town():
     html = KARRIERE_ITEM.replace(">Wien<", ">Hainburg an der Donau<")
     assert parse_karriere(html, make_config()).region_match == "Kittsee area"
+
+
+# --- StepStone.at ----------------------------------------------------------
+
+STEPSTONE_CARD = """
+<article data-testid="job-item" id="job-item-991803">
+  <div data-testid="job-card-content">
+    <a data-at="company-logo" href="/cmp/de/pichem-161668/jobs"></a>
+    <h2>
+      <a data-testid="job-item-title"
+         href="https://www.stepstone.at/stellenangebote--Chemielabortechniker-m-w-d-Wien-piCHEM--991803-inline.html?foo=1">
+        <div><div><div>Chemielabortechniker (m/w/d)</div></div></div>
+      </a>
+    </h2>
+    <div data-at="job-item-middle">
+      <span data-at="job-item-company-name">piCHEM Forschungs-und Entwicklungs GmbH</span>
+      <span data-at="job-item-location">Wien</span>
+      <span data-at="job-item-timeago"><time>vor 1 Woche</time></span>
+    </div>
+    <div>Analytik im GMP-Labor. Gute Deutschkenntnisse und HPLC-Erfahrung erforderlich.</div>
+  </div>
+</article>
+"""
+
+
+def parse_stepstone(html: str, config: AppConfig):
+    card = BeautifulSoup(html, "html.parser").select_one('article[data-testid="job-item"]')
+    return StepStoneAtSource()._parse_card(card, config)
+
+
+def test_stepstone_card_parses():
+    job = parse_stepstone(STEPSTONE_CARD, make_config())
+    assert job is not None
+    assert job.source_id == "991803"
+    assert job.title == "Chemielabortechniker (m/w/d)"
+    assert job.company == "piCHEM Forschungs-und Entwicklungs GmbH"
+    assert job.region_match == "Vienna"
+    # "Labortechniker" matched inside the compound "Chemielabortechniker"
+    assert job.matched_query == "Labortechniker"
+    assert job.posted_date == "vor 1 Woche"
+    assert "?" not in job.url
+    assert job.summary.startswith("Nemčina: dobrá (B2)")  # "gute Deutschkenntnisse"
+
+
+def test_stepstone_drops_far_town():
+    html = STEPSTONE_CARD.replace(">Wien<", ">Graz<")
+    assert parse_stepstone(html, make_config()) is None
+
+
+def test_stepstone_drops_unrelated_title():
+    html = STEPSTONE_CARD.replace("Chemielabortechniker (m/w/d)", "LKW-Fahrer (m/w/d)").replace(
+        "Analytik im GMP-Labor. Gute Deutschkenntnisse und HPLC-Erfahrung erforderlich.", "Führerschein C+E."
+    )
+    assert parse_stepstone(html, make_config()) is None
 
 
 # --- LinkedIn ------------------------------------------------------------------

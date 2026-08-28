@@ -95,16 +95,23 @@ def role_terms(roles: list[str]) -> list[tuple[str, str]]:
 # still rejecting unrelated longer words.
 _SUFFIX_SLACK = 4
 
+# Terms at least this long are matched inside German compound words too
+# ("labortechniker" inside "Chemielabortechniker"); shorter ones keep a
+# strict word start so "chemik" does not fire on "Elektrochemikalien".
+_COMPOUND_MIN = 7
+
 
 def match_role(text: str, roles: list[str]) -> str:
     """Return the configured role whose term appears in text, or "".
 
-    The term must start on a word boundary but may be followed by a short
-    inflectional ending, so "Laborantka" matches the term "laborant".
+    A short term must start on a word boundary; a long term may also sit
+    inside a compound word. Either may be followed by a short inflectional
+    ending, so "Laborantka" matches the term "laborant".
     """
     normalized = strip_diacritics(normalize_text(_clean(text)))
     for term, role in role_terms(roles):
-        pattern = rf"(?<![a-z]){re.escape(term)}[a-z]{{0,{_SUFFIX_SLACK}}}(?![a-z])"
+        head = "" if len(term) >= _COMPOUND_MIN else r"(?<![a-z])"
+        pattern = rf"{head}{re.escape(term)}[a-z]{{0,{_SUFFIX_SLACK}}}(?![a-z])"
         if re.search(pattern, normalized):
             return role
     return ""

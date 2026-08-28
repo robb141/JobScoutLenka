@@ -3,7 +3,7 @@ name: Collect jobs
 on:
   workflow_dispatch: {}
   schedule:
-    # 05:30 UTC on weekdays - fresh postings before Lenka's morning.
+    # 05:30 UTC Friday morning - fresh postings before the week's review.
     - cron: "30 5 * * 5"
   push:
     branches: [main]
@@ -38,9 +38,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/state.json
-          key: jobscout-state-${{ github.run_id }}
+          # Bump the vN prefix to start a clean slate: the next run finds no
+          # prior state, so every posting is reported as NEW.
+          key: jobscout-state-v2-${{ github.run_id }}
           restore-keys: |
-            jobscout-state-
+            jobscout-state-v2-
 
       - name: Collect jobs
         run: python -m jobscout collect

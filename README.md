@@ -42,6 +42,7 @@ Edit `config.yml`:
   directly.
 - `sources.profesia.keywords` – **Slovak** search terms for Profesia
 - `sources.karriere_at.keywords` – **German** search terms for karriere.at
+  (shared with StepStone via the `&de_keywords` YAML anchor)
 - `sources.profesia.region` – Slovak region slug pinned in the URL
 - `sources.karriere_at.locations` / `sources.linkedin.locations` – Austrian
   states / LinkedIn geos to search before region filtering
@@ -85,13 +86,15 @@ Then visit http://127.0.0.1:8000.
 
 - **Profesia.sk** – the largest Slovak board (Bratislava side)
 - **karriere.at** – the largest Austrian board (Vienna + border towns)
+- **StepStone.at** – a second Austrian board; searched with a 30 km radius
+  around Vienna and Hainburg, different employer base (staffing agencies,
+  mid-size pharma/R&D)
 - **LinkedIn** – public guest search; rate-limited, so some queries may be
   skipped on busy runs
 - **Company pages** – direct career / listing pages listed in `config.yml`
   (Slovak Academy of Sciences job board, Lexogen, University of Vienna,
   Takeda, Boehringer Ingelheim, Valneva)
 
-Not wired up yet, but sensible next additions for more volume: a general
-board such as **Indeed** (`at.indeed.com`, `sk.indeed.com`) or
-**StepStone.at**, and AMS *alle jobs* (jobs.ams.at). Most other employer
-career sites are JavaScript apps that this scraper cannot read.
+Indeed (`at.indeed.com` / `sk.indeed.com`) blocks non-browser requests, so
+it is not viable. AMS *alle jobs* (jobs.ams.at) is a JavaScript app. Most
+employer career sites are JavaScript apps this scraper cannot read.
