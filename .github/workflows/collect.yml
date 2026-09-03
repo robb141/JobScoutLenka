@@ -29,7 +29,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore state
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/state.json
           # Bump the vN prefix to start a clean slate: the next run finds no
@@ -50,7 +50,7 @@ jobs:
           retention-days: 90
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: output
 
