@@ -5,12 +5,6 @@ on:
   schedule:
     # 05:30 UTC Friday morning - fresh postings before the week's review.
     - cron: "30 5 * * 5"
-  push:
-    branches: [main]
-    paths:
-      - "jobscout/**"
-      - "config.yml"
-      - ".github/workflows/collect.yml"
 
 permissions:
   contents: read
@@ -25,9 +19,9 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -49,7 +43,7 @@ jobs:
 
       # Always available: download output/index.html from the run's summary.
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: report
           path: output/index.html
